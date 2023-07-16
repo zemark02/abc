@@ -1,0 +1,90 @@
+version: '3.9'
+
+services:
+  # reservations:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/reservations/Dockerfile
+  #     target: development
+  #   command: pnpm run start:dev reservations
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - .:/usr/src/app
+  #   networks:
+  #     - sleepr
+  #   env_file:
+  #     - ./apps/reservations/.env
+  #   depends_on:
+  #     - mongodbReservation
+  # auth:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/auth/Dockerfile
+  #     target: development
+  #   env_file:
+  #     - ./apps/auth/.env
+  #   command: pnpm run start:dev auth
+  #   ports:
+  #     - '3001:3001'
+  #   volumes:
+  #     - .:/usr/src/app
+  #   networks:
+  #     - sleepr
+  #   depends_on:
+  #     - mongodbAuth
+  mongodbReservation:
+    image: mongo
+    container_name: mongodbReservation
+    networks:
+      - sleepr
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    ports:
+      - '8181:27017'
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  mongoAuth:
+    image: mongo
+    container_name: mongoAuth
+    networks:
+      - sleepr
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    ports:
+      - '8182:27017'
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  # mongodbAuth:
+  #   image: mongo
+  #   container_name: mongodbAuth
+  #   networks:
+  #     - sleepr
+  #   restart: always
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=1234
+  #   ports:
+  #     - '8182:27017'
+  #   healthcheck:
+  #     test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
+networks:
+  sleepr:
+    name: sleepr
+    driver: bridge
